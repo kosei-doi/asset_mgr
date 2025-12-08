@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Asset Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Firebase SDK (Compat version for v8 syntax) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Financial Asset Management</h1>
+            <div class="total-balance">
+                <span class="label">Total Assets:</span>
+                <span class="amount" id="totalBalance">¥0</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Dashboard Section -->
+            <section class="dashboard-section">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <button class="btn btn-primary" id="addAccountBtn">Add Account</button>
+                </div>
+                <div class="dashboard-content">
+                    <div class="charts-container">
+                        <div class="chart-wrapper">
+                            <h3>Asset Distribution</h3>
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <h3>Balance Trend</h3>
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accounts Section -->
+            <section class="accounts-section">
+                <div class="section-header">
+                    <h2>Accounts</h2>
+                </div>
+                <div class="accounts-grid" id="accountsGrid">
+                    <!-- Accounts will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section">
+                <div class="section-header">
+                    <h2>Balance History</h2>
+                    <select id="historyAccountFilter">
+                        <option value="all">All Accounts</option>
+                    </select>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History will be dynamically inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Account Modal -->
+    <div id="addAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Account</h2>
+            <form id="addAccountForm">
+                <div class="form-group">
+                    <label for="accountName">Account Name *</label>
+                    <input type="text" id="accountName" required placeholder="e.g., Mitsubishi UFJ Bank">
+                </div>
+                <div class="form-group">
+                    <label for="accountType">Account Type *</label>
+                    <select id="accountType" required>
+                        <option value="">Select type...</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Time Deposit">Time Deposit</option>
+                        <option value="Securities Account">Securities Account</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="initialBalance">Initial Balance (optional)</label>
+                    <input type="number" id="initialBalance" min="0" step="1000" placeholder="0">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAddAccount">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Account Modal -->
+    <div id="editAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Account</h2>
+            <form id="editAccountForm">
+                <input type="hidden" id="editAccountId">
+                <div class="form-group">
+                    <label for="editAccountName">Account Name *</label>
+                    <input type="text" id="editAccountName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAccountType">Account Type *</label>
+                    <select id="editAccountType" required>
+                        <option value="Savings">Savings</option>
+                        <option value="Time Deposit">Time Deposit</option>
+                        <option value="Securities Account">Securities Account</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditAccount">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Balance Modal -->
+    <div id="updateBalanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Balance</h2>
+            <form id="updateBalanceForm">
+                <input type="hidden" id="updateBalanceAccountId">
+                <div class="form-group">
+                    <label for="currentBalance">Current Balance</label>
+                    <input type="text" id="currentBalance" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="newBalance">New Balance *</label>
+                    <input type="number" id="newBalance" required min="0" step="1000" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="balanceDate">Date *</label>
+                    <input type="date" id="balanceDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="balanceMemo">Memo (optional)</label>
+                    <textarea id="balanceMemo" rows="3" placeholder="Add a note..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelUpdateBalance">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Balance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/account-manager.js"></script>
+    <script src="js/balance-manager.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
