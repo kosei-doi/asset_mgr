@@ -46,7 +46,7 @@ class AccountManager {
                     await window.balanceManager.addBalanceHistory(accountId, {
                         balance: accountData.initialBalance,
                         inputDate: new Date().toISOString(),
-                        memo: 'Initial balance'
+                        memo: '初期残高'
                     });
                 }
             }
@@ -75,7 +75,7 @@ class AccountManager {
     // Delete account
     async deleteAccount(accountId) {
         try {
-            if (confirm('Are you sure you want to delete this account? This will also delete all balance history.')) {
+            if (confirm('この口座を削除してもよろしいですか？残高履歴もすべて削除されます。')) {
                 await accountsRef.child(accountId).remove();
                 await balanceHistoryRef.child(accountId).remove();
             }
@@ -105,7 +105,7 @@ class AccountManager {
         if (accounts.length === 0) {
             accountsGrid.innerHTML = `
                 <div class="empty-state">
-                    <p>No accounts yet. Click "Add Account" to get started.</p>
+                    <p>まだ口座がありません。「口座を追加」をクリックして始めましょう。</p>
                 </div>
             `;
             return;
@@ -120,20 +120,20 @@ class AccountManager {
                     <div class="account-header">
                         <div>
                             <div class="account-name">${this.escapeHtml(account.accountName)}</div>
-                            <span class="account-type">${this.escapeHtml(account.accountType)}</span>
+                            <span class="account-type">${this.escapeHtml(this.getAccountTypeName(account.accountType))}</span>
                         </div>
                     </div>
                     <div class="account-balance">${formattedBalance}</div>
-                    <div class="account-meta">Created: ${createdDate}</div>
+                    <div class="account-meta">作成日: ${createdDate}</div>
                     <div class="account-actions">
                         <button class="btn btn-primary btn-small" onclick="window.accountManager.openUpdateBalanceModal('${account.accountId}')">
-                            Update Balance
+                            残高を更新
                         </button>
                         <button class="btn btn-secondary btn-small" onclick="window.accountManager.openEditAccountModal('${account.accountId}')">
-                            Edit
+                            編集
                         </button>
                         <button class="btn btn-danger btn-small" onclick="window.accountManager.deleteAccount('${account.accountId}')">
-                            Delete
+                            削除
                         </button>
                     </div>
                 </div>
@@ -172,6 +172,15 @@ class AccountManager {
     // Format currency
     formatCurrency(amount) {
         return '¥' + amount.toLocaleString('ja-JP');
+    }
+
+    // Get Japanese account type name
+    getAccountTypeName(accountType) {
+        const typeMap = {
+            'Savings': '普通預金',
+            'Investment': '投資'
+        };
+        return typeMap[accountType] || accountType;
     }
 
     // Escape HTML to prevent XSS

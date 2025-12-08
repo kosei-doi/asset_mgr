@@ -152,7 +152,7 @@ class ChartsManager {
         // Update chart
         this.trendChart.data.labels = sortedDates;
         this.trendChart.data.datasets = [{
-            label: 'Total Balance',
+            label: '総残高',
             data: totalBalances,
             borderColor: '#667eea',
             backgroundColor: 'rgba(102, 126, 234, 0.1)',

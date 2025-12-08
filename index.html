@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Asset Management</title>
+    <title>資産管理アプリ</title>
     <link rel="stylesheet" href="css/styles.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -14,56 +14,67 @@
 <body>
     <div class="container">
         <header>
-            <h1>Financial Asset Management</h1>
+            <h1>資産管理アプリ</h1>
             <div class="total-balance">
-                <span class="label">Total Assets:</span>
+                <span class="label">総資産:</span>
                 <span class="amount" id="totalBalance">¥0</span>
             </div>
         </header>
 
         <main>
-            <!-- Dashboard Section -->
-            <section class="dashboard-section">
-                <div class="section-header">
-                    <h2>Dashboard</h2>
-                    <button class="btn btn-primary" id="addAccountBtn">Add Account</button>
-                </div>
-                <div class="dashboard-content">
-                    <div class="charts-container">
-                        <div class="chart-wrapper">
-                            <h3>Asset Distribution</h3>
-                            <canvas id="distributionChart"></canvas>
-                        </div>
-                        <div class="chart-wrapper">
-                            <h3>Balance Trend</h3>
-                            <canvas id="trendChart"></canvas>
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+                <button class="tab-btn" data-tab="accounts">口座</button>
+                <button class="tab-btn" data-tab="history">履歴</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Dashboard Tab -->
+                <div class="tab-pane active" id="dashboard-tab">
+                    <div class="section-header">
+                        <h2>ダッシュボード</h2>
+                        <button class="btn btn-primary" id="addAccountBtn">口座を追加</button>
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="charts-container">
+                            <div class="chart-wrapper">
+                                <h3>資産分布</h3>
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                            <div class="chart-wrapper">
+                                <h3>残高推移</h3>
+                                <canvas id="trendChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Accounts Section -->
-            <section class="accounts-section">
-                <div class="section-header">
-                    <h2>Accounts</h2>
+                <!-- Accounts Tab -->
+                <div class="tab-pane" id="accounts-tab">
+                    <div class="section-header">
+                        <h2>口座</h2>
+                        <button class="btn btn-primary" id="addAccountBtn2">口座を追加</button>
+                    </div>
+                    <div class="accounts-grid" id="accountsGrid">
+                        <!-- Accounts will be dynamically inserted here -->
+                    </div>
                 </div>
-                <div class="accounts-grid" id="accountsGrid">
-                    <!-- Accounts will be dynamically inserted here -->
-                </div>
-            </section>
 
-            <!-- History Section -->
-            <section class="history-section">
-                <div class="section-header">
-                    <h2>Balance History</h2>
-                    <select id="historyAccountFilter">
-                        <option value="all">All Accounts</option>
-                    </select>
+                <!-- History Tab -->
+                <div class="tab-pane" id="history-tab">
+                    <div class="section-header">
+                        <h2>残高履歴</h2>
+                        <select id="historyAccountFilter">
+                            <option value="all">すべての口座</option>
+                        </select>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <!-- History will be dynamically inserted here -->
+                    </div>
                 </div>
-                <div class="history-list" id="historyList">
-                    <!-- History will be dynamically inserted here -->
-                </div>
-            </section>
+            </div>
         </main>
     </div>
 
@@ -71,30 +82,27 @@
     <div id="addAccountModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Add New Account</h2>
+            <h2>新規口座を追加</h2>
             <form id="addAccountForm">
                 <div class="form-group">
-                    <label for="accountName">Account Name *</label>
-                    <input type="text" id="accountName" required placeholder="e.g., Mitsubishi UFJ Bank">
+                    <label for="accountName">口座名 *</label>
+                    <input type="text" id="accountName" required placeholder="例: 三菱UFJ銀行">
                 </div>
                 <div class="form-group">
-                    <label for="accountType">Account Type *</label>
+                    <label for="accountType">口座タイプ *</label>
                     <select id="accountType" required>
-                        <option value="">Select type...</option>
-                        <option value="Savings">Savings</option>
-                        <option value="Time Deposit">Time Deposit</option>
-                        <option value="Securities Account">Securities Account</option>
-                        <option value="Investment">Investment</option>
-                        <option value="Other">Other</option>
+                        <option value="">タイプを選択...</option>
+                        <option value="Savings">普通預金</option>
+                        <option value="Investment">投資</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="initialBalance">Initial Balance (optional)</label>
-                    <input type="number" id="initialBalance" min="0" step="1000" placeholder="0">
+                    <label for="initialBalance">初期残高（任意）</label>
+                    <input type="number" id="initialBalance" min="0" step="1" placeholder="0">
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelAddAccount">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Account</button>
+                    <button type="button" class="btn btn-secondary" id="cancelAddAccount">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">口座を追加</button>
                 </div>
             </form>
         </div>
@@ -104,26 +112,23 @@
     <div id="editAccountModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Edit Account</h2>
+            <h2>口座を編集</h2>
             <form id="editAccountForm">
                 <input type="hidden" id="editAccountId">
                 <div class="form-group">
-                    <label for="editAccountName">Account Name *</label>
+                    <label for="editAccountName">口座名 *</label>
                     <input type="text" id="editAccountName" required>
                 </div>
                 <div class="form-group">
-                    <label for="editAccountType">Account Type *</label>
+                    <label for="editAccountType">口座タイプ *</label>
                     <select id="editAccountType" required>
-                        <option value="Savings">Savings</option>
-                        <option value="Time Deposit">Time Deposit</option>
-                        <option value="Securities Account">Securities Account</option>
-                        <option value="Investment">Investment</option>
-                        <option value="Other">Other</option>
+                        <option value="Savings">普通預金</option>
+                        <option value="Investment">投資</option>
                     </select>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelEditAccount">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditAccount">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">変更を保存</button>
                 </div>
             </form>
         </div>
@@ -133,28 +138,28 @@
     <div id="updateBalanceModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Update Balance</h2>
+            <h2>残高を更新</h2>
             <form id="updateBalanceForm">
                 <input type="hidden" id="updateBalanceAccountId">
                 <div class="form-group">
-                    <label for="currentBalance">Current Balance</label>
+                    <label for="currentBalance">現在の残高</label>
                     <input type="text" id="currentBalance" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="newBalance">New Balance *</label>
-                    <input type="number" id="newBalance" required min="0" step="1000" placeholder="0">
+                    <label for="newBalance">新しい残高 *</label>
+                    <input type="number" id="newBalance" required min="0" step="1" placeholder="0">
                 </div>
                 <div class="form-group">
-                    <label for="balanceDate">Date *</label>
+                    <label for="balanceDate">日付 *</label>
                     <input type="date" id="balanceDate" required>
                 </div>
                 <div class="form-group">
-                    <label for="balanceMemo">Memo (optional)</label>
-                    <textarea id="balanceMemo" rows="3" placeholder="Add a note..."></textarea>
+                    <label for="balanceMemo">メモ（任意）</label>
+                    <textarea id="balanceMemo" rows="3" placeholder="メモを追加..."></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelUpdateBalance">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Balance</button>
+                    <button type="button" class="btn btn-secondary" id="cancelUpdateBalance">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">残高を更新</button>
                 </div>
             </form>
         </div>

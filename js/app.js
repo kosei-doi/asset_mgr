@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeApp() {
+    setupTabs();
     setupModals();
     setupForms();
     setupEventListeners();
@@ -15,17 +16,46 @@ function initializeApp() {
     }
 }
 
+// Setup tab functionality
+function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+
+            // Remove active class from all buttons and panes
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding pane
+            button.classList.add('active');
+            const targetPane = document.getElementById(targetTab + '-tab');
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+        });
+    });
+}
+
 // Setup modal functionality
 function setupModals() {
     // Add Account Modal
     const addAccountModal = document.getElementById('addAccountModal');
     const addAccountBtn = document.getElementById('addAccountBtn');
+    const addAccountBtn2 = document.getElementById('addAccountBtn2');
     const cancelAddAccount = document.getElementById('cancelAddAccount');
 
+    const openAddAccountModal = () => {
+        addAccountModal.classList.add('show');
+    };
+
     if (addAccountBtn) {
-        addAccountBtn.addEventListener('click', () => {
-            addAccountModal.classList.add('show');
-        });
+        addAccountBtn.addEventListener('click', openAddAccountModal);
+    }
+    if (addAccountBtn2) {
+        addAccountBtn2.addEventListener('click', openAddAccountModal);
     }
 
     if (cancelAddAccount) {
@@ -88,7 +118,7 @@ function setupForms() {
             const initialBalance = parseFloat(document.getElementById('initialBalance').value) || 0;
 
             if (!accountName || !accountType) {
-                alert('Please fill in all required fields.');
+                alert('すべての必須項目を入力してください。');
                 return;
             }
 
@@ -107,7 +137,7 @@ function setupForms() {
                     window.historyManager.updateFilterOptions();
                 }
             } catch (error) {
-                alert('Error adding account. Please try again.');
+                alert('口座の追加中にエラーが発生しました。もう一度お試しください。');
                 console.error(error);
             }
         });
@@ -124,7 +154,7 @@ function setupForms() {
             const accountType = document.getElementById('editAccountType').value;
 
             if (!accountName || !accountType) {
-                alert('Please fill in all required fields.');
+                alert('すべての必須項目を入力してください。');
                 return;
             }
 
@@ -141,7 +171,7 @@ function setupForms() {
                     window.historyManager.updateFilterOptions();
                 }
             } catch (error) {
-                alert('Error updating account. Please try again.');
+                alert('口座の更新中にエラーが発生しました。もう一度お試しください。');
                 console.error(error);
             }
         });
@@ -159,12 +189,12 @@ function setupForms() {
             const balanceMemo = document.getElementById('balanceMemo').value.trim();
 
             if (isNaN(newBalance) || newBalance < 0) {
-                alert('Please enter a valid balance amount.');
+                alert('有効な残高を入力してください。');
                 return;
             }
 
             if (!balanceDate) {
-                alert('Please select a date.');
+                alert('日付を選択してください。');
                 return;
             }
 
@@ -181,7 +211,7 @@ function setupForms() {
                 document.getElementById('updateBalanceModal').classList.remove('show');
                 updateBalanceForm.reset();
             } catch (error) {
-                alert('Error updating balance. Please try again.');
+                alert('残高の更新中にエラーが発生しました。もう一度お試しください。');
                 console.error(error);
             }
         });

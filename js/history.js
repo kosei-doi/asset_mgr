@@ -25,7 +25,7 @@ class HistoryManager {
         const accounts = window.accountManager.getAllAccounts();
 
         // Clear existing options except "All Accounts"
-        filterSelect.innerHTML = '<option value="all">All Accounts</option>';
+        filterSelect.innerHTML = '<option value="all">すべての口座</option>';
 
         // Add account options
         accounts.forEach(account => {
@@ -55,7 +55,7 @@ class HistoryManager {
         if (history.length === 0) {
             historyList.innerHTML = `
                 <div class="empty-state">
-                    <p>No balance history yet.</p>
+                    <p>まだ残高履歴がありません。</p>
                 </div>
             `;
             return;
@@ -63,7 +63,7 @@ class HistoryManager {
 
         historyList.innerHTML = history.map(entry => {
             const account = window.accountManager.getAccount(entry.accountId);
-            const accountName = account ? account.accountName : 'Unknown Account';
+            const accountName = account ? account.accountName : '不明な口座';
             const formattedBalance = this.formatCurrency(entry.balance);
             const formattedDate = this.formatDate(entry.inputDate);
             const memo = entry.memo ? `<div class="history-memo">${this.escapeHtml(entry.memo)}</div>` : '';
