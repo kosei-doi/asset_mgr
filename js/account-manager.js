@@ -135,21 +135,23 @@ class AccountManager {
                         const msPerDay = 1000 * 60 * 60 * 24;
                         daysSincePrev = Math.max(0, Math.floor((latestDate - prevDate) / msPerDay));
                     }
-                    const daysText = daysSincePrev !== null ? `（前回から${daysSincePrev}日）` : '';
+                    const daysText = daysSincePrev !== null ? `（${daysSincePrev}日間）` : '';
 
                     if (diff > 0) {
                         trendClass = 'trend-up';
-                        trendText = `前回比: +${this.formatCurrency(Math.abs(diff))}${pct !== null ? ` (+${pct.toFixed(1)}%)` : ''} ${daysText}`.trim();
+                        const pctText = pct !== null ? ` (+${pct.toFixed(1)}%)` : '';
+                        trendText = `+${this.formatCurrency(Math.abs(diff))}${pctText} ${daysText}`.trim();
                     } else if (diff < 0) {
                         trendClass = 'trend-down';
-                        trendText = `前回比: -${this.formatCurrency(Math.abs(diff))}${pct !== null ? ` (-${Math.abs(pct).toFixed(1)}%)` : ''} ${daysText}`.trim();
+                        const pctText = pct !== null ? ` (-${Math.abs(pct).toFixed(1)}%)` : '';
+                        trendText = `-${this.formatCurrency(Math.abs(diff))}${pctText} ${daysText}`.trim();
                     } else {
                         trendClass = 'trend-neutral';
-                        trendText = `前回比: 変化なし ${daysText}`.trim();
+                        trendText = `変化なし ${daysText}`.trim();
                     }
                 } else if (latest) {
                     trendClass = 'trend-neutral';
-                    trendText = '前回比: 初回データ';
+                    trendText = '初回データ';
                 }
             }
             
