@@ -95,6 +95,50 @@ header h1 {
     display: block;
 }
 
+.range-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 5px;
+}
+
+.range-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #333;
+}
+
+.range-btn.active {
+    background: #333;
+    color: white;
+    border-color: #333;
+}
+
+.series-filter {
+    margin: 10px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.series-filter label {
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 600;
+}
+
+#trendSeriesSelect {
+    min-width: 180px;
+    max-width: 100%;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    font-size: 0.95rem;
+}
+
 /* Sections */
 .section-header {
     display: flex;
@@ -217,6 +261,23 @@ header h1 {
     font-weight: 600;
     color: #333;
     margin: 10px 0;
+}
+
+.account-trend {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.trend-up {
+    color: #d32f2f; /* red for increase */
+}
+
+.trend-down {
+    color: #2e7d32; /* green for decrease */
+}
+
+.trend-neutral {
+    color: #777;
 }
 
 .account-actions {

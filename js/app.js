@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeApp() {
     setupTabs();
+    setupRangeFilters();
+    setupTrendSeriesSelect();
     setupModals();
     setupForms();
     setupEventListeners();
@@ -34,6 +36,67 @@ function setupTabs() {
             const targetPane = document.getElementById(targetTab + '-tab');
             if (targetPane) {
                 targetPane.classList.add('active');
+            }
+        });
+    });
+}
+
+// Setup trend series select (show/hide datasets)
+function setupTrendSeriesSelect() {
+    const select = document.getElementById('trendSeriesSelect');
+    if (!select) return;
+
+    const syncSelection = () => {
+        const selected = select.value ? [select.value] : ['total'];
+        if (window.charts && typeof window.charts.setSeriesSelection === 'function') {
+            window.charts.setSeriesSelection(selected);
+        }
+    };
+
+    select.addEventListener('change', syncSelection);
+
+    // Initial population with current accounts
+    refreshTrendSeriesOptions();
+    syncSelection();
+}
+
+function refreshTrendSeriesOptions() {
+    const select = document.getElementById('trendSeriesSelect');
+    if (!select) return;
+    const currentValue = select.value || 'total';
+
+    // Clear
+    select.innerHTML = '';
+    // Total
+    const totalOpt = document.createElement('option');
+    totalOpt.value = 'total';
+    totalOpt.textContent = '総残高';
+    totalOpt.selected = currentValue === 'total';
+    select.appendChild(totalOpt);
+
+    // Accounts
+    const accounts = window.accountManager ? window.accountManager.getAllAccounts() : [];
+    accounts.forEach(acc => {
+        const opt = document.createElement('option');
+        opt.value = acc.accountId;
+        opt.textContent = acc.accountName;
+        if (currentValue === acc.accountId) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
+
+// Setup trend range filter buttons
+function setupRangeFilters() {
+    const rangeButtons = document.querySelectorAll('.range-btn');
+    if (!rangeButtons.length) return;
+
+    rangeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const range = btn.getAttribute('data-range');
+            rangeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (window.charts && typeof window.charts.setTrendRange === 'function') {
+                window.charts.setTrendRange(range);
             }
         });
     });
@@ -228,6 +291,7 @@ function setupEventListeners() {
             if (window.historyManager) {
                 window.historyManager.updateFilterOptions();
             }
+            refreshTrendSeriesOptions();
         };
     }
 }

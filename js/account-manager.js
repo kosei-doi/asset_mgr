@@ -114,6 +114,34 @@ class AccountManager {
         accountsGrid.innerHTML = accounts.map(account => {
             const formattedBalance = this.formatCurrency(account.latestBalance || 0);
             const createdDate = new Date(account.createdAt).toLocaleDateString();
+
+            // 前回比計算
+            let trendClass = 'trend-neutral';
+            let trendText = '前回比: -';
+            if (window.balanceManager) {
+                const history = window.balanceManager.getAccountHistory(account.accountId);
+                const latest = history.length > 0 ? history[0] : null;
+                const prevEntry = history.length > 1 ? history[1] : null;
+                if (latest && prevEntry) {
+                    const prev = prevEntry.balance || 0;
+                    const curr = latest.balance || 0;
+                    const diff = curr - prev;
+                    const pct = prev !== 0 ? (diff / prev) * 100 : null;
+                    if (diff > 0) {
+                        trendClass = 'trend-up';
+                        trendText = `前回比: +${this.formatCurrency(Math.abs(diff))}${pct !== null ? ` (+${pct.toFixed(1)}%)` : ''}`;
+                    } else if (diff < 0) {
+                        trendClass = 'trend-down';
+                        trendText = `前回比: -${this.formatCurrency(Math.abs(diff))}${pct !== null ? ` (-${Math.abs(pct).toFixed(1)}%)` : ''}`;
+                    } else {
+                        trendClass = 'trend-neutral';
+                        trendText = '前回比: 変化なし';
+                    }
+                } else if (latest) {
+                    trendClass = 'trend-neutral';
+                    trendText = '前回比: 初回データ';
+                }
+            }
             
             return `
                 <div class="account-card">
@@ -124,6 +152,7 @@ class AccountManager {
                         </div>
                     </div>
                     <div class="account-balance">${formattedBalance}</div>
+                    <div class="account-trend ${trendClass}">${trendText}</div>
                     <div class="account-meta">作成日: ${createdDate}</div>
                     <div class="account-actions">
                         <button class="btn btn-primary btn-small" onclick="window.accountManager.openUpdateBalanceModal('${account.accountId}')">

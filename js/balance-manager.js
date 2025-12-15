@@ -16,6 +16,9 @@ class BalanceManager {
             if (window.charts) {
                 window.charts.updateTrendChart();
             }
+            if (window.accountManager) {
+                window.accountManager.renderAccounts();
+            }
         });
     }
 

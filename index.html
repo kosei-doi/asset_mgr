@@ -47,6 +47,18 @@
                             </div>
                             <div class="chart-wrapper">
                                 <h3>残高推移</h3>
+                                <div class="range-filters">
+                                    <button class="range-btn" data-range="week">1週</button>
+                                    <button class="range-btn" data-range="month">1ヶ月</button>
+                                    <button class="range-btn" data-range="year">1年</button>
+                                    <button class="range-btn active" data-range="all">全期間</button>
+                                </div>
+                                <div class="series-filter">
+                                    <label for="trendSeriesSelect">表示する系列</label>
+                                    <select id="trendSeriesSelect">
+                                        <option value="total" selected>総残高</option>
+                                    </select>
+                                </div>
                                 <canvas id="trendChart"></canvas>
                             </div>
                         </div>
