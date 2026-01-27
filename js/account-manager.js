@@ -46,7 +46,7 @@ class AccountManager {
                     await window.balanceManager.addBalanceHistory(accountId, {
                         balance: accountData.initialBalance,
                         inputDate: new Date().toISOString(),
-                        memo: '初期残高'
+                        memo: 'Initial balance'
                     });
                 }
             }
@@ -75,7 +75,7 @@ class AccountManager {
     // Delete account
     async deleteAccount(accountId) {
         try {
-            if (confirm('この口座を削除してもよろしいですか？残高履歴もすべて削除されます。')) {
+            if (confirm('Delete this account? All balance history will also be removed.')) {
                 await accountsRef.child(accountId).remove();
                 await balanceHistoryRef.child(accountId).remove();
             }
@@ -105,7 +105,7 @@ class AccountManager {
         if (accounts.length === 0) {
             accountsGrid.innerHTML = `
                 <div class="empty-state">
-                    <p>まだ口座がありません。「口座を追加」をクリックして始めましょう。</p>
+                    <p>No accounts yet. Click "Add Account" to get started.</p>
                 </div>
             `;
             return;
@@ -115,9 +115,9 @@ class AccountManager {
             const formattedBalance = this.formatCurrency(account.latestBalance || 0);
             const createdDate = new Date(account.createdAt).toLocaleDateString();
 
-            // 前回比計算
+            // Previous vs latest calculation
             let trendClass = 'trend-neutral';
-            let trendText = '前回比: -';
+            let trendText = '-';
             if (window.balanceManager) {
                 const history = window.balanceManager.getAccountHistory(account.accountId);
                 const latest = history.length > 0 ? history[0] : null;
@@ -127,7 +127,7 @@ class AccountManager {
                     const curr = latest.balance || 0;
                     const diff = curr - prev;
                     const pct = prev !== 0 ? (diff / prev) * 100 : null;
-                    // 前回からの日数差
+                    // Days between previous and latest entry
                     let daysSincePrev = null;
                     if (prevEntry.inputDate) {
                         const prevDate = new Date(prevEntry.inputDate);
@@ -135,7 +135,7 @@ class AccountManager {
                         const msPerDay = 1000 * 60 * 60 * 24;
                         daysSincePrev = Math.max(0, Math.floor((latestDate - prevDate) / msPerDay));
                     }
-                    const daysText = daysSincePrev !== null ? `（${daysSincePrev}日間）` : '';
+                    const daysText = daysSincePrev !== null ? `(${daysSincePrev} days)` : '';
 
                     if (diff > 0) {
                         trendClass = 'trend-up';
@@ -147,11 +147,11 @@ class AccountManager {
                         trendText = `-${this.formatCurrency(Math.abs(diff))}${pctText} ${daysText}`.trim();
                     } else {
                         trendClass = 'trend-neutral';
-                        trendText = `変化なし ${daysText}`.trim();
+                        trendText = `No change ${daysText}`.trim();
                     }
                 } else if (latest) {
                     trendClass = 'trend-neutral';
-                    trendText = '初回データ';
+                    trendText = 'First entry';
                 }
             }
             
@@ -165,16 +165,16 @@ class AccountManager {
                     </div>
                     <div class="account-balance">${formattedBalance}</div>
                     <div class="account-trend ${trendClass}">${trendText}</div>
-                    <div class="account-meta">作成日: ${createdDate}</div>
+                    <div class="account-meta">Created: ${createdDate}</div>
                     <div class="account-actions">
                         <button class="btn btn-primary btn-small" onclick="window.accountManager.openUpdateBalanceModal('${account.accountId}')">
-                            残高を更新
+                            Update Balance
                         </button>
                         <button class="btn btn-secondary btn-small" onclick="window.accountManager.openEditAccountModal('${account.accountId}')">
-                            編集
+                            Edit
                         </button>
                         <button class="btn btn-danger btn-small" onclick="window.accountManager.deleteAccount('${account.accountId}')">
-                            削除
+                            Delete
                         </button>
                     </div>
                 </div>
@@ -212,14 +212,14 @@ class AccountManager {
 
     // Format currency
     formatCurrency(amount) {
-        return '¥' + amount.toLocaleString('ja-JP');
+        return '¥' + amount.toLocaleString('en-US');
     }
 
-    // Get Japanese account type name
+    // Map account type to display label
     getAccountTypeName(accountType) {
         const typeMap = {
-            'Savings': '普通預金',
-            'Investment': '投資'
+            'Savings': 'Savings',
+            'Investment': 'Investment'
         };
         return typeMap[accountType] || accountType;
     }

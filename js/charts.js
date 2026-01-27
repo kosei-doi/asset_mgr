@@ -59,7 +59,7 @@ class ChartsManager {
                                 const value = context.parsed || 0;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${label}: ¥${value.toLocaleString('ja-JP')} (${percentage}%)`;
+                                return `${label}: ¥${value.toLocaleString('en-US')} (${percentage}%)`;
                             }
                         }
                     }
@@ -86,7 +86,7 @@ class ChartsManager {
                     y: {
                         beginAtZero: false,
                         ticks: {
-                            callback: (value) => '¥' + value.toLocaleString('ja-JP')
+                            callback: (value) => '¥' + value.toLocaleString('en-US')
                         }
                     }
                 },
@@ -99,7 +99,7 @@ class ChartsManager {
                             label: (context) => {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.y || 0;
-                                return `${label}: ¥${value.toLocaleString('ja-JP')}`;
+                                return `${label}: ¥${value.toLocaleString('en-US')}`;
                             }
                         }
                     }
@@ -237,7 +237,7 @@ class ChartsManager {
         const datasets = [];
         // Total
         datasets.push({
-            label: '総残高',
+            label: 'Total Balance',
             data: totalBalances,
             borderColor: '#667eea',
             backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -279,7 +279,7 @@ class ChartsManager {
         }
 
         // Update chart
-        this.trendChart.data.labels = dateKeys.map(key => new Date(key).toLocaleDateString('ja-JP'));
+        this.trendChart.data.labels = dateKeys.map(key => new Date(key).toLocaleDateString('en-US'));
         this.trendChart.data.datasets = finalDatasets;
         this.trendChart.update();
     }

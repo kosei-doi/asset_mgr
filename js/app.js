@@ -70,7 +70,7 @@ function refreshTrendSeriesOptions() {
     // Total
     const totalOpt = document.createElement('option');
     totalOpt.value = 'total';
-    totalOpt.textContent = '総残高';
+    totalOpt.textContent = 'Total Balance';
     totalOpt.selected = currentValue === 'total';
     select.appendChild(totalOpt);
 
@@ -181,7 +181,7 @@ function setupForms() {
             const initialBalance = parseFloat(document.getElementById('initialBalance').value) || 0;
 
             if (!accountName || !accountType) {
-                alert('すべての必須項目を入力してください。');
+                alert('Please fill in all required fields.');
                 return;
             }
 
@@ -200,7 +200,7 @@ function setupForms() {
                     window.historyManager.updateFilterOptions();
                 }
             } catch (error) {
-                alert('口座の追加中にエラーが発生しました。もう一度お試しください。');
+                alert('Error adding account. Please try again.');
                 console.error(error);
             }
         });
@@ -217,7 +217,7 @@ function setupForms() {
             const accountType = document.getElementById('editAccountType').value;
 
             if (!accountName || !accountType) {
-                alert('すべての必須項目を入力してください。');
+                alert('Please fill in all required fields.');
                 return;
             }
 
@@ -234,7 +234,7 @@ function setupForms() {
                     window.historyManager.updateFilterOptions();
                 }
             } catch (error) {
-                alert('口座の更新中にエラーが発生しました。もう一度お試しください。');
+                alert('Error updating account. Please try again.');
                 console.error(error);
             }
         });
@@ -245,6 +245,12 @@ function setupForms() {
     if (updateBalanceForm) {
         updateBalanceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (updateBalanceForm.dataset.submitting === 'true') {
+                return;
+            }
+            updateBalanceForm.dataset.submitting = 'true';
+            const submitButton = updateBalanceForm.querySelector('button[type="submit"]');
+            if (submitButton) submitButton.disabled = true;
             
             const accountId = document.getElementById('updateBalanceAccountId').value;
             const newBalance = parseFloat(document.getElementById('newBalance').value);
@@ -252,12 +258,16 @@ function setupForms() {
             const balanceMemo = document.getElementById('balanceMemo').value.trim();
 
             if (isNaN(newBalance) || newBalance < 0) {
-                alert('有効な残高を入力してください。');
+                alert('Please enter a valid balance amount.');
+                updateBalanceForm.dataset.submitting = 'false';
+                if (submitButton) submitButton.disabled = false;
                 return;
             }
 
             if (!balanceDate) {
-                alert('日付を選択してください。');
+                alert('Please select a date.');
+                updateBalanceForm.dataset.submitting = 'false';
+                if (submitButton) submitButton.disabled = false;
                 return;
             }
 
@@ -274,8 +284,11 @@ function setupForms() {
                 document.getElementById('updateBalanceModal').classList.remove('show');
                 updateBalanceForm.reset();
             } catch (error) {
-                alert('残高の更新中にエラーが発生しました。もう一度お試しください。');
+                alert('Error updating balance. Please try again.');
                 console.error(error);
+            } finally {
+                updateBalanceForm.dataset.submitting = 'false';
+                if (submitButton) submitButton.disabled = false;
             }
         });
     }

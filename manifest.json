@@ -1,7 +1,7 @@
 {
-  "name": "資産管理アプリ",
-  "short_name": "資産管理",
-  "description": "個人資産管理アプリケーション",
+  "name": "Asset Manager",
+  "short_name": "AssetMgr",
+  "description": "Personal asset management web app",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
