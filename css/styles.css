@@ -139,6 +139,48 @@ header h1 {
     font-size: 0.95rem;
 }
 
+#trendViewSelect {
+    min-width: 140px;
+    max-width: 100%;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    font-size: 0.95rem;
+}
+
+.trend-summary {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #eee;
+    background: #fafafa;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    border-radius: 6px;
+}
+
+.trend-summary .summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.trend-summary .summary-label {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.trend-summary .summary-value {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+}
+
 /* Sections */
 .section-header {
     display: flex;

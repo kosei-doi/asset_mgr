@@ -65,12 +65,32 @@
                                     <button class="range-btn active" data-range="all">All</button>
                                 </div>
                                 <div class="series-filter">
+                                    <label for="trendViewSelect">View</label>
+                                    <select id="trendViewSelect">
+                                        <option value="total" selected>Total</option>
+                                        <option value="account">By Account</option>
+                                        <option value="type">By Type</option>
+                                    </select>
                                     <label for="trendSeriesSelect">Series</label>
                                     <select id="trendSeriesSelect">
                                         <option value="total" selected>Total Balance</option>
                                     </select>
                                 </div>
                                 <canvas id="trendChart"></canvas>
+                                <div class="trend-summary" id="trendSummary">
+                                    <div class="summary-item">
+                                        <span class="summary-label">Current</span>
+                                        <span class="summary-value">—</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Change</span>
+                                        <span class="summary-value">—</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Change %</span>
+                                        <span class="summary-value">—</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

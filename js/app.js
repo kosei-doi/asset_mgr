@@ -43,8 +43,9 @@ function setupTabs() {
 
 // Setup trend series select (show/hide datasets)
 function setupTrendSeriesSelect() {
+    const viewSelect = document.getElementById('trendViewSelect');
     const select = document.getElementById('trendSeriesSelect');
-    if (!select) return;
+    if (!select || !viewSelect) return;
 
     const syncSelection = () => {
         const selected = select.value ? [select.value] : ['total'];
@@ -54,6 +55,13 @@ function setupTrendSeriesSelect() {
     };
 
     select.addEventListener('change', syncSelection);
+    viewSelect.addEventListener('change', () => {
+        if (window.charts && typeof window.charts.setTrendView === 'function') {
+            window.charts.setTrendView(viewSelect.value);
+        }
+        refreshTrendSeriesOptions();
+        syncSelection();
+    });
 
     // Initial population with current accounts
     refreshTrendSeriesOptions();
@@ -61,28 +69,51 @@ function setupTrendSeriesSelect() {
 }
 
 function refreshTrendSeriesOptions() {
+    const viewSelect = document.getElementById('trendViewSelect');
     const select = document.getElementById('trendSeriesSelect');
-    if (!select) return;
+    if (!select || !viewSelect) return;
     const currentValue = select.value || 'total';
+    const viewMode = viewSelect.value || 'total';
 
     // Clear
     select.innerHTML = '';
-    // Total
-    const totalOpt = document.createElement('option');
-    totalOpt.value = 'total';
-    totalOpt.textContent = 'Total Balance';
-    totalOpt.selected = currentValue === 'total';
-    select.appendChild(totalOpt);
+    if (viewMode === 'total') {
+        const totalOpt = document.createElement('option');
+        totalOpt.value = 'total';
+        totalOpt.textContent = 'Total Balance';
+        totalOpt.selected = true;
+        select.appendChild(totalOpt);
+        return;
+    }
 
-    // Accounts
     const accounts = window.accountManager ? window.accountManager.getAllAccounts() : [];
-    accounts.forEach(acc => {
-        const opt = document.createElement('option');
-        opt.value = acc.accountId;
-        opt.textContent = acc.accountName;
-        if (currentValue === acc.accountId) opt.selected = true;
-        select.appendChild(opt);
-    });
+    if (viewMode === 'account') {
+        accounts.forEach(acc => {
+            const opt = document.createElement('option');
+            opt.value = acc.accountId;
+            opt.textContent = acc.accountName;
+            if (currentValue === acc.accountId) opt.selected = true;
+            select.appendChild(opt);
+        });
+    } else if (viewMode === 'type') {
+        const typeSet = new Set();
+        accounts.forEach(acc => {
+            if (acc.accountType) typeSet.add(acc.accountType);
+        });
+        const types = Array.from(typeSet);
+        types.forEach(type => {
+            const opt = document.createElement('option');
+            opt.value = `type:${type}`;
+            opt.textContent = type;
+            if (currentValue === `type:${type}`) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    if (!select.value) {
+        const first = select.querySelector('option');
+        if (first) first.selected = true;
+    }
 }
 
 // Setup trend range filter buttons

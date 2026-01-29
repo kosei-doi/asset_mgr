@@ -6,6 +6,7 @@ class ChartsManager {
         this.trendChart = null;
         this.trendRange = 'all'; // week, month, year, all
         this.selectedSeries = ['total']; // selected dataset ids
+        this.trendView = 'total'; // total, account, type
         this.colorPalette = [
             '#667eea', '#764ba2', '#f093fb', '#4facfe', '#00c9ff',
             '#43e97b', '#fa709a', '#30cfd0', '#a8edea', '#fbd786',
@@ -114,6 +115,15 @@ class ChartsManager {
         this.updateTrendChart();
     }
 
+    // Set trend view mode
+    setTrendView(view) {
+        this.trendView = view || 'total';
+        if (this.trendView === 'total') {
+            this.selectedSeries = ['total'];
+        }
+        this.updateTrendChart();
+    }
+
     // Set visible series (array of ids: 'total' or accountId)
     setSeriesSelection(selectedIds) {
         if (!selectedIds || selectedIds.length === 0) {
@@ -205,10 +215,12 @@ class ChartsManager {
         const totalBalances = [];
         const lastBalances = {};
         const accountSeries = new Map(); // accountId -> { name, data: [] }
+        const accountTypeById = new Map();
 
         // Prepare series for each account
         accounts.forEach(acc => {
             accountSeries.set(acc.accountId, { id: acc.accountId, name: acc.accountName, data: [] });
+            accountTypeById.set(acc.accountId, acc.accountType || 'Other');
         });
 
         let cursor = new Date(startDate);
@@ -233,6 +245,19 @@ class ChartsManager {
             cursor.setDate(cursor.getDate() + 1);
         }
 
+        // Build type series from account series
+        const typeSeries = new Map(); // type -> { id, name, data }
+        accountSeries.forEach((series, accId) => {
+            const type = accountTypeById.get(accId) || 'Other';
+            if (!typeSeries.has(type)) {
+                typeSeries.set(type, { id: `type:${type}`, name: type, data: new Array(series.data.length).fill(0) });
+            }
+            const typeData = typeSeries.get(type).data;
+            series.data.forEach((val, idx) => {
+                typeData[idx] += val || 0;
+            });
+        });
+
         // Build datasets: total + per account
         const datasets = [];
         // Total
@@ -256,14 +281,33 @@ class ChartsManager {
                 backgroundColor: color + '33',
                 tension: 0.4,
                 fill: false,
-                _id: series.id
+                _id: series.id,
+                _group: 'account'
+            });
+            colorIndex += 1;
+        });
+        // Types
+        typeSeries.forEach((series) => {
+            const color = this.colorPalette[colorIndex % this.colorPalette.length];
+            datasets.push({
+                label: series.name,
+                data: series.data,
+                borderColor: color,
+                backgroundColor: color + '33',
+                tension: 0.4,
+                fill: false,
+                _id: series.id,
+                _group: 'type'
             });
             colorIndex += 1;
         });
 
         // Filter datasets based on selected series
         const allowed = new Set(this.selectedSeries);
-        const finalDatasets = datasets.filter(ds => allowed.has(ds._id) || allowed.has('all'));
+        let finalDatasets = datasets.filter(ds => allowed.has(ds._id) || allowed.has('all'));
+        if (this.trendView === 'total') {
+            finalDatasets = datasets.filter(ds => ds._id === 'total');
+        }
 
         // Y-axis dynamic range (padding around min/max) based on selected datasets
         const allSelectedValues = finalDatasets.flatMap(ds => ds.data || []);
@@ -282,6 +326,41 @@ class ChartsManager {
         this.trendChart.data.labels = dateKeys.map(key => new Date(key).toLocaleDateString('en-US'));
         this.trendChart.data.datasets = finalDatasets;
         this.trendChart.update();
+
+        // Update summary below chart
+        this.updateTrendSummary(finalDatasets, dateKeys);
+    }
+
+    updateTrendSummary(datasets, dateKeys) {
+        const summaryEl = document.getElementById('trendSummary');
+        if (!summaryEl) return;
+        const valueEls = summaryEl.querySelectorAll('.summary-value');
+        if (!datasets || datasets.length === 0 || valueEls.length < 3) {
+            summaryEl.textContent = 'No data.';
+            return;
+        }
+        const series = datasets[0];
+        const data = series.data || [];
+        if (data.length === 0) {
+            summaryEl.textContent = 'No data.';
+            return;
+        }
+        const current = data[data.length - 1];
+        const start = data[0];
+        const diff = current - start;
+        const pct = start !== 0 ? (diff / start) * 100 : null;
+        const days = Math.max(0, dateKeys.length - 1);
+        const diffText = diff >= 0 ? `+¥${Math.abs(diff).toLocaleString('en-US')}` : `-¥${Math.abs(diff).toLocaleString('en-US')}`;
+        const pctText = pct !== null ? `${diff >= 0 ? '+' : '-'}${Math.abs(pct).toFixed(1)}%` : '—';
+        const periodText = days > 0 ? `${days} days` : 'Selected period';
+
+        const currentValue = `¥${current.toLocaleString('en-US')}`;
+        const changeValue = `${diffText} (${periodText})`;
+        const pctValue = pctText;
+
+        valueEls[0].textContent = currentValue;
+        valueEls[1].textContent = changeValue;
+        valueEls[2].textContent = pctValue;
     }
 }
 
