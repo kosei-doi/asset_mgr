@@ -40,3 +40,9 @@ logs/
 *_old.*
 *.bak
 *.backup
+
+# Migration backups
+backups/
+
+# Service account files
+*service-account*.json
